@@ -39,7 +39,7 @@ if($_GET['do']=='lstvouchers')
 	echo '</voucherlist>';
 }
 
-if($_GET['lstdevices'])
+if($_GET['do']=='lstdevices'])
 {
 	echo '<devicelist>'."\n";
 	if($auth->CheckPermission('view_voucher') && isset($_GET['vid'])
