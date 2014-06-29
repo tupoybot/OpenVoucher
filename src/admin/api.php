@@ -39,10 +39,10 @@ if($_GET['do']=='lstvouchers')
 	echo '</voucherlist>';
 }
 
-if($_GET['do']=='lstdevices'])
+if($_GET['do']=='lstdevices')
 {
 	echo '<devicelist>'."\n";
-	if($auth->CheckPermission('view_voucher') && isset($_GET['vid'])
+	if($auth->CheckPermission('view_voucher') && isset($_GET['vid']))
 	{
 		echo "\t".'<state>success</state>'."\n";
 		$devices=$vouchermanager->GetDeviceList($_GET['vid']);
@@ -211,7 +211,7 @@ if($_GET['do']=='lstusers')
 	echo '<userlist>'."\n";
 	if($auth->CheckPermission('view_users'))
 	{
-		echo "\t".'<state>success</state>'."\n"
+		echo "\t".'<state>success</state>'."\n";
 		$users=$usermanager->GetUserlist();
 		foreach($users as $user)
 		{
