@@ -1,0 +1,68 @@
+Installation from source
+
+Requirements
+
+First of all, download the recent version of OpenVoucher and unpack it on your workstation. If you want the very last version, you can use the repository on Github as well.
+
+As you don’t need all the files on the OpenVoucher server, you don’t need copy the whole achieve to the server. Just download and unpack it on your workstation for now.
+
+I assume that you have a fresh Debian installation and already configured two ethernet interfaces – one internal and one external.
+
+On the server, install the following packages using apt-get:
+
+apt-get install apache2 php5 php5-mysql sudo mysql-server
+
+OpenVoucher needs iptables as well, but this should be already installed on a fresh Debian.
+
+When these packages are installed, we have to create a MySQL database. Copy the file tables.sql from the database directory to your server. This file will create a database containing all needed tables and add a user “admin” with all privileges. Run the following command:
+
+mysql -u root -p < tables.sql
+
+OpenVoucher needs to set iptables rules. To do this, the user running apache webserver (usually www-data on Debian) needs permissions to run iptables. Type visudo in the shell to configure sudo. Add the following to the sudo config file:
+
+www-data ALL = NOPASSWD: /sbin/iptables
+
+This allows apache to create iptables rules without a password.
+
+Installing OpenVoucher
+
+Copy the contents of the src directory to the www-root of your webserver. On Debian, this should usually be /var/www/. Make sure the directory is empty before copying the files. In order to upload you own logo to OpenVoucher via the admin interface, it is required that the user www-data is able to write into the graphics-directory. Set chmod to 666 or 777 or change the owner to www-data.
+
+OpenVoucher uses .htaccess files to set permissions and perform redirections. Per default, apache might be configured not to process these files. Make sure the AllowOverride option is set to All as shown in this example:
+
+<Directory /var/www/>
+Options Indexes FollowSymLinks MultiViews
+AllowOverride All
+Order allow,deny
+allow from all
+</Directory>
+
+Then restart apache:
+
+service apache2 restart
+
+Now you have to edit the config section of vouchermanager.php. Open includes/config.php and modify the settings to fit your needs:
+define(‘MYSQL_HOST’,’localhost’);
+define(‘MYSQL_USER’,’local’);
+define(‘MYSQL_PWD’,’local’);
+define(‘MYSQL_DB’,’openvoucher’);
+define(‘SYSTEM_IPTABLES’,’/sbin/iptables’);
+define(‘SYSTEM_ARP’,’/usr/sbin/arp’);
+define(‘SYSTEM_TMPDIR’,’/var/tmp/’);
+define(‘SYSTEM_AUTHENTICATION’,’mac-only’);
+define(‘INTERFACES_INTERNAL’,’eth1?);
+define(‘INTERFACES_INTERNAL_IP’,’10.0.0.1?);
+define(‘INTERFACES_EXTERNAL’,’eth0?);
+
+Make sure the paths in the system section are correct. In the interface section, configure your internal and external interfaces and the internal IP address. Internal means the interface where the guests are connected to and external means the interface which you use to go online.
+
+After this, use www-data’s crontab to add the cronjobs described in the cronjobs directory.
+
+We use the operating system’s routing functionality. As root, open the file /etc/sysctl.conf in an editor and uncomment the line net.ipv4.ip_forward as shown below:
+
+# Uncomment the next line to enable packet forwarding for IPv4
+net.ipv4.ip_forward=1
+
+Reboot the server and you’re done!
+
+After sucessful installation, you can login to the admin interface by opening http://your.host’s.ip.or.name/admin/ using the username “admin” and password “admin” (without the quotes).
